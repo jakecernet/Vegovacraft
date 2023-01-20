@@ -22,13 +22,12 @@ void loop() {
   // put your main code here, to run repeatedly:
   //Serial.print(dht.readHumidity());
   //Serial.print("  ");
-  //Serial.println(dht.readTemperature());  
-  //delay(100);
+  Serial.println(dht.readTemperature());
+  delay(1000);
 
-  float temperatura = 30;
+  float temperatura = dht.readTemperature();
 
-  int servo_kot = map(temperatura, 15, 30, 0, 180);
+  int servo_kot = map(temperatura * 10, 150, 300, 0, 180);
 
   mojservo.write(servo_kot);
-
 }
