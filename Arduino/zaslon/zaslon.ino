@@ -13,8 +13,8 @@ void setup() {
 
   delay(1000);
   // Print a message to the LCD.
-  lcd.print("To je pa eno daljse besedilo. Pravzaprav je zares dolgo.");
-  lcd.home();
+  lcd.print("\xE0To je pa eno daljse besedilo. Pravzaprav je zares dolgo.");
+  delay(400);
 }
 
 void loop() {
