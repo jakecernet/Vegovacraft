@@ -13,22 +13,13 @@ void setup() {
 
   delay(1000);
   // Print a message to the LCD.
-  lcd.print("\xE0To je pa eno daljse besedilo. Pravzaprav je zares dolgo.");
+  lcd.print("\xE0Jaz sem Jaka.");
   delay(400);
 }
 
 void loop() {
-  for (int i = 0; i < 24; i++) {
+  for (int i = 0; i < 3; i++) {
     lcd.scrollDisplayLeft();
     delay(400);
   }
-
-  delay(2000);
-
-  for (int i = 0; i < 24; i++) {
-    lcd.scrollDisplayRight();
-    delay(400);
-  }
-
-  delay(2000);
 }
