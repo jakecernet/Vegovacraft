@@ -1,2 +1,2 @@
 # Arduino
- Some Arduino programs
+ Some Arduino codes.
