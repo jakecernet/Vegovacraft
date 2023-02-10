@@ -1,4 +1,5 @@
 {
     "port": "COM7",
-    "board": "arduino:avr:uno"
+    "board": "arduino:avr:uno",
+    "sketch": "Arduino\\zaslon\\zaslon.ino"
 }
