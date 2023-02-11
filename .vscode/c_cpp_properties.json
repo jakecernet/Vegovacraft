@@ -7,7 +7,8 @@
             "compilerArgs": [],
             "intelliSenseMode": "windows-msvc-x64",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/Arduino/libraries/IRremote/src"
             ],
             "forcedInclude": [],
             "cStandard": "",
