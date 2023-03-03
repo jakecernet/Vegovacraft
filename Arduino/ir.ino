@@ -167,18 +167,18 @@ void loop() {
         break;
       case TIPKA_8:
         IZPISI_TIPKO(TIPKA_8)
-        leds[0] = CRGB::Orange;
+        leds[0] = CRGB::Red;
         leds[1] = CRGB::Orange;
-        leds[2] = CRGB::Orange;
-        leds[3] = CRGB::Orange;
-        leds[4] = CRGB::Orange;
-        leds[5] = CRGB::Orange;
-        leds[6] = CRGB::Orange;
-        leds[7] = CRGB::Orange;
-        leds[8] = CRGB::Orange;
+        leds[2] = CRGB::Yellow;
+        leds[3] = CRGB::White;
+        leds[4] = CRGB::Cyan;
+        leds[5] = CRGB::Blue;
+        leds[6] = CRGB::Green;
+        leds[7] = CRGB::Purple;
+        leds[8] = CRGB::Black;
         FastLED.show();
         lcd.clear();
-        lcd.print("Orange");
+        lcd.print("Rainbow");
         break;
       case TIPKA_9:
         IZPISI_TIPKO(TIPKA_9)
