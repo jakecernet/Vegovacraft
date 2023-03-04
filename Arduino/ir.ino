@@ -51,12 +51,21 @@ void setup() {
   lcd.print("Hello, world!");
 }
 
+int svetlost = 0;
+int korak = 1;
+
 void loop() {
+
+  svetlost = analogRead(A5)/4;
+
+  FastLED.setBrightness(svetlost);
+
+  Serial.println(svetlost);
+
   if (IrReceiver.decode()) {
     unsigned long koda = IrReceiver.decodedIRData.decodedRawData;
 
-    // Serial.println("Dobil pritisk.");
-    // Serial.println(IrReceiver.decodedIRData.decodedRawData, HEX);
+    Serial.println("Dobil pritisk.");
 
     // Glede na prejeto kodo skočimo na določen del programa.
     switch (koda) {
@@ -201,4 +210,6 @@ void loop() {
     }
     IrReceiver.resume();
   }
+
+  FastLED.show();
 }
