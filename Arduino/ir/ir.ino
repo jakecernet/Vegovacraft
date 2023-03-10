@@ -46,18 +46,23 @@ CRGB leds[NUM_LEDS];
 const int rs = 12, en = 10, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
+bool onoff = false;
+
 void setup() {
   Serial.begin(115200);
   IrReceiver.begin(A0, ENABLE_LED_FEEDBACK);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   lcd.begin(16, 2);
   lcd.print("Hello, world!");
-
+  
   pinMode(SW, INPUT_PULLUP);
+  pinMode(LED_BUILTIN, OUTPUT);
+  onoff = digitalRead(SW);
 
 }
 
-bool onoff = false;
+bool joy_sw_old = false;
+bool joy_sw_now = false;
 
 int svetlost = 0;
 
@@ -65,6 +70,14 @@ void loop() {
 
   int joy_x = analogRead(JOY_X);
   int joy_y = analogRead(JOY_Y);
+  joy_sw_now = !digitalRead(SW);
+
+  if (joy_sw_old == false && joy_sw_now == true) {
+    onoff != onoff;
+     digitalWrite(13, onoff);
+  }
+
+  joy_sw_old = joy_sw_now;
 
   svetlost = analogRead(A5)/4;
 
