@@ -1,4 +1,4 @@
-#include <IRremote.hpp>
+ #include <IRremote.hpp>
 #include <FastLED.h>
 #include <LiquidCrystal.h>
 #define DECODE_NEC
@@ -28,6 +28,17 @@
 CRGB leds[NUM_LEDS];
 
 bool onoff = false;
+int pozicija = 0;
+
+void nastaviLED(int pozicija){
+  for (int i = 0; i < NUM_LEDS; i++){
+    leds[i] = CRGB::Black;
+  }
+  if (pozicija >= NUM_LEDS || pozicija < 0) return;
+  leds[pozicija] = CRGB::White;
+
+  FastLED.show();
+}
 
 const int rs = 12, en = 10, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
@@ -37,7 +48,7 @@ void setup() {
   IrReceiver.begin(A0, ENABLE_LED_FEEDBACK);
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   lcd.begin(16, 2);
-  lcd.print("Use IR remote and joystick.");
+  lcd.print("Jaka Cernetic");
   
   pinMode(SW, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -47,6 +58,7 @@ void setup() {
 bool joy_sw_old = false;
 bool joy_sw_now = false;
 int svetlost = 0;
+unsigned long cooldown = millis();
 
 void loop() {
 
@@ -60,8 +72,17 @@ void loop() {
   }
   joy_sw_old = joy_sw_now;  
 
-  svetlost = analogRead(A5)/4;
+  svetlost = joy_y/4;
   FastLED.setBrightness(svetlost);
+
+  if (joy_x < 250 && pozicija > 0) {
+    pozicija--;
+  }
+  else if (joy_x > 750 && pozicija < NUM_LEDS){
+    pozicija++;
+  }
+
+  nastaviLED(pozicija);
 
   if (IrReceiver.decode()) {
     unsigned long koda = IrReceiver.decodedIRData.decodedRawData;
@@ -181,7 +202,7 @@ void loop() {
         leds[5] = CRGB::Blue;
         leds[6] = CRGB::Green;
         leds[7] = CRGB::Purple;
-        leds[8] = CRGB::Black;
+        leds[8] = CRGB::DarkRed;
         FastLED.show();
         lcd.clear();
         lcd.print("Rainbow");
