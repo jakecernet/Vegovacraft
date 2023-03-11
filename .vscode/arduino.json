@@ -1,5 +1,5 @@
 {
     "port": "COM7",
     "board": "arduino:avr:uno",
-    "sketch": "Arduino\\joystick\\joystick.ino"
+    "sketch": "Arduino\\ir\\ir.ino"
 }
