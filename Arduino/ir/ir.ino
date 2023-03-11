@@ -6,8 +6,8 @@
 #define NUM_LEDS 9
 #define DATA_PIN 11
 #define CLOCK_PIN 11
-#define JOY_X A5
-#define JOY_Y A4
+#define JOY_X A4
+#define JOY_Y A5
 #define SW A3
 
 #define TIPKA_ZVEZDICA 0
@@ -27,24 +27,11 @@
 
 CRGB leds[NUM_LEDS];
 
-bool onoff = false;
+int onoff = 0;
 int pozicija = 0;
 
-/*void nastaviLED(int pozicija)
-{
-  for (int i = 0; i < NUM_LEDS; i++)
-  {
-    leds[i] = CRGB::Black;
-  }
-  if (pozicija >= NUM_LEDS || pozicija < 0)
-    return;
-  leds[pozicija] = CRGB::White;
-
-  FastLED.show();
-}
-
-const int rs = 12, en = 10, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);*/
+const int rs = 10, en = 12, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
 void setup()
 {
@@ -53,42 +40,38 @@ void setup()
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
   lcd.begin(16, 2);
   lcd.print("Jaka Cernetic");
+  FastLED.clear();
 
   pinMode(SW, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   onoff = digitalRead(SW);
 }
 
-bool joy_sw_old = false;
-bool joy_sw_now = false;
+int joy_sw_now = 0;
 int svetlost = 0;
-unsigned long cooldown = millis();
+bool power = 1;
 
 void loop()
 {
-
   int joy_x = analogRead(JOY_X);
   int joy_y = analogRead(JOY_Y);
-  joy_sw_now = !digitalRead(SW);
+  onoff = digitalRead(SW);
 
-  if (joy_sw_old == false && joy_sw_now == true)
-  {
-    onoff != onoff;
-    digitalWrite(13, onoff);
+  if (onoff == LOW){
+    if (power = 1){
+      digitalWrite(LED_BUILTIN, HIGH);
+      FastLED.clear();
+      power = 0;
+    }
+    else{
+      digitalWrite(LED_BUILTIN, LOW);
+      FastLED.show();
+      power = 1;
+    }
   }
-  joy_sw_old = joy_sw_now;
 
   svetlost = joy_y / 4;
   FastLED.setBrightness(svetlost);
-
-  if (joy_x < 250 && pozicija > 0)
-  {
-    pozicija--;
-  }
-  else if (joy_x > 750 && pozicija < NUM_LEDS)
-  {
-    pozicija++;
-  }
 
   if (IrReceiver.decode())
   {
@@ -237,5 +220,4 @@ void loop()
     }
     IrReceiver.resume();
   }
-  FastLED.show();
 }
