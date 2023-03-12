@@ -80,6 +80,7 @@ void loop()
   RtcDateTime now = Rtc.GetDateTime();
 
   lcd.setCursor(0,1);
+  lcd.print("Ura:");
   lcd.print(now.Hour());
   lcd.print(":");
   lcd.print(now.Minute());
