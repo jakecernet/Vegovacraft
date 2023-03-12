@@ -108,6 +108,14 @@ void loop()
   lcd.print(":");
   lcd.print(now.Second());
 
+  lcd.setCursor(0, 0);
+  lcd.print("Datum: ");
+  lcd.print(now.Day());
+  lcd.print(".");
+  lcd.print(now.Month());
+  lcd.print(".");
+  lcd.print(now.Year());
+
   if (IrReceiver.decode())
   {
     unsigned long koda = IrReceiver.decodedIRData.decodedRawData;
@@ -116,44 +124,30 @@ void loop()
     case TIPKA_1:
       IZPISI_TIPKO(TIPKA_1)
       displayLED(CRGB::Red);
-      lcd.clear();
-      lcd.print("Red");
       break;
     case TIPKA_2:
       IZPISI_TIPKO(TIPKA_2)
       displayLED(CRGB::Green);
-      lcd.clear();
-      lcd.print("Green");
       break;
     case TIPKA_3:
       IZPISI_TIPKO(TIPKA_3)
       displayLED(CRGB::Blue);
-      lcd.clear();
-      lcd.print("Blue");
       break;
     case TIPKA_4:
       IZPISI_TIPKO(TIPKA_4)
       displayLED(CRGB::White);
-      lcd.clear();
-      lcd.print("White");
       break;
     case TIPKA_5:
       IZPISI_TIPKO(TIPKA_5)
       displayLED(CRGB::Black);
-      lcd.clear();
-      lcd.print("Off");
       break;
     case TIPKA_6:
       IZPISI_TIPKO(TIPKA_6)
       displayLED(CRGB::Yellow);
-      lcd.clear();
-      lcd.print("Yellow");
       break;
     case TIPKA_7:
       IZPISI_TIPKO(TIPKA_7)
       displayLED(CRGB::Purple);
-      lcd.clear();
-      lcd.print("Purple");
       break;
     case TIPKA_8:
       IZPISI_TIPKO(TIPKA_8)
@@ -167,14 +161,10 @@ void loop()
       leds[7] = CRGB::Purple;
       leds[8] = CRGB::DarkRed;
       FastLED.show();
-      lcd.clear();
-      lcd.print("Rainbow");
       break;
     case TIPKA_9:
       IZPISI_TIPKO(TIPKA_9)
       displayLED(CRGB::Cyan);
-      lcd.clear();
-      lcd.print("Cyan");
       break;
     default:
       if (koda != 0)
