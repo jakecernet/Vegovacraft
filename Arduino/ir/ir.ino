@@ -55,9 +55,12 @@ void setup()
 
 int count = 0;
 
-void displayLED()
+void displayLED(CRGB color)
 {
-  
+  for (int i = 0; i < NUM_LEDS; i++)
+  {
+    leds[i] = color; 
+  }
 }
 
 void loop()
@@ -73,10 +76,16 @@ void loop()
     if (power == 1)
     {
       power = 0;
+      lcd.clear();
+      lcd.setCursor(1, 0);
+      lcd.print("Off");
     }
     else
     {
       power = 1;
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("On");
     }
   }
 
@@ -106,106 +115,43 @@ void loop()
     {
     case TIPKA_1:
       IZPISI_TIPKO(TIPKA_1)
-      leds[0] = CRGB::Red;
-      leds[1] = CRGB::Red;
-      leds[2] = CRGB::Red;
-      leds[3] = CRGB::Red;
-      leds[4] = CRGB::Red;
-      leds[5] = CRGB::Red;
-      leds[6] = CRGB::Red;
-      leds[7] = CRGB::Red;
-      leds[8] = CRGB::Red;
-      FastLED.show();
+      displayLED(CRGB::Red);
       lcd.clear();
       lcd.print("Red");
       break;
     case TIPKA_2:
       IZPISI_TIPKO(TIPKA_2)
-      leds[0] = CRGB::Green;
-      leds[1] = CRGB::Green;
-      leds[2] = CRGB::Green;
-      leds[3] = CRGB::Green;
-      leds[4] = CRGB::Green;
-      leds[5] = CRGB::Green;
-      leds[6] = CRGB::Green;
-      leds[7] = CRGB::Green;
-      leds[8] = CRGB::Green;
-      FastLED.show();
+      displayLED(CRGB::Green);
       lcd.clear();
       lcd.print("Green");
       break;
     case TIPKA_3:
       IZPISI_TIPKO(TIPKA_3)
-      leds[0] = CRGB::Blue;
-      leds[1] = CRGB::Blue;
-      leds[2] = CRGB::Blue;
-      leds[3] = CRGB::Blue;
-      leds[4] = CRGB::Blue;
-      leds[5] = CRGB::Blue;
-      leds[6] = CRGB::Blue;
-      leds[7] = CRGB::Blue;
-      leds[8] = CRGB::Blue;
-      FastLED.show();
+      displayLED(CRGB::Blue);
       lcd.clear();
       lcd.print("Blue");
       break;
     case TIPKA_4:
       IZPISI_TIPKO(TIPKA_4)
-      leds[0] = CRGB::White;
-      leds[1] = CRGB::White;
-      leds[2] = CRGB::White;
-      leds[3] = CRGB::White;
-      leds[4] = CRGB::White;
-      leds[5] = CRGB::White;
-      leds[6] = CRGB::White;
-      leds[7] = CRGB::White;
-      leds[8] = CRGB::White;
-      FastLED.show();
+      displayLED(CRGB::White);
       lcd.clear();
       lcd.print("White");
       break;
     case TIPKA_5:
       IZPISI_TIPKO(TIPKA_5)
-      leds[0] = CRGB::Black;
-      leds[1] = CRGB::Black;
-      leds[2] = CRGB::Black;
-      leds[3] = CRGB::Black;
-      leds[4] = CRGB::Black;
-      leds[5] = CRGB::Black;
-      leds[6] = CRGB::Black;
-      leds[7] = CRGB::Black;
-      leds[8] = CRGB::Black;
-      FastLED.show();
+      displayLED(CRGB::Black);
       lcd.clear();
       lcd.print("Off");
       break;
     case TIPKA_6:
       IZPISI_TIPKO(TIPKA_6)
-      leds[0] = CRGB::Yellow;
-      leds[1] = CRGB::Yellow;
-      leds[2] = CRGB::Yellow;
-      leds[3] = CRGB::Yellow;
-      leds[4] = CRGB::Yellow;
-      leds[5] = CRGB::Yellow;
-      leds[6] = CRGB::Yellow;
-      leds[7] = CRGB::Yellow;
-      leds[8] = CRGB::Yellow;
-      FastLED.show();
+      displayLED(CRGB::Yellow);
       lcd.clear();
       lcd.print("Yellow");
       break;
     case TIPKA_7:
       IZPISI_TIPKO(TIPKA_7)
-      leds[0] = CRGB::Purple;
-      leds[1] = CRGB::Purple;
-      leds[2] = CRGB::Purple;
-      leds[3] = CRGB::Purple;
-      leds[4] = CRGB::Purple;
-      leds[5] = CRGB::Purple;
-      leds[6] = CRGB::Purple;
-      leds[7] = CRGB::Purple;
-      leds[8] = CRGB::Purple;
-      FastLED.show();
+      displayLED(CRGB::Purple);
       lcd.clear();
       lcd.print("Purple");
       break;
@@ -226,16 +172,7 @@ void loop()
       break;
     case TIPKA_9:
       IZPISI_TIPKO(TIPKA_9)
-      leds[0] = CRGB::Cyan;
-      leds[1] = CRGB::Cyan;
-      leds[2] = CRGB::Cyan;
-      leds[3] = CRGB::Cyan;
-      leds[4] = CRGB::Cyan;
-      leds[5] = CRGB::Cyan;
-      leds[6] = CRGB::Cyan;
-      leds[7] = CRGB::Cyan;
-      leds[8] = CRGB::Cyan;
-      FastLED.show();
+      displayLED(CRGB::Cyan);
       lcd.clear();
       lcd.print("Cyan");
       break;
