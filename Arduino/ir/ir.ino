@@ -1,7 +1,7 @@
 #include <IRremote.hpp>
 #include <FastLED.h>
 #include <LiquidCrystal.h>
-#include <ThreeWire.h>  
+#include <ThreeWire.h>
 #include <RtcDS1302.h>
 #define DECODE_NEC
 #define IZPISI_TIPKO(x) Serial.println(#x);
@@ -36,7 +36,7 @@ bool power = 1;
 const int rs = 10, en = 12, d4 = 2, d5 = 3, d6 = 4, d7 = 5;
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-ThreeWire myWire(9,8,7); // DAT, CLK, RST
+ThreeWire myWire(9, 8, 7); // DAT, CLK, RST
 RtcDS1302<ThreeWire> Rtc(myWire);
 
 void setup()
@@ -51,6 +51,13 @@ void setup()
   pinMode(SW, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   onoff = digitalRead(SW);
+}
+
+int count = 0;
+
+void displayLED()
+{
+  
 }
 
 void loop()
@@ -75,21 +82,22 @@ void loop()
 
   if (power == 0)
   {
-   FastLED.setBrightness(0);
+    FastLED.setBrightness(0);
   }
   else
   {
     FastLED.setBrightness(svetlost);
   }
-  
 
   RtcDateTime now = Rtc.GetDateTime();
 
-  lcd.setCursor(0,1);
-  lcd.print("Ura:");
+  lcd.setCursor(0, 1);
+  lcd.print("Ura: ");
   lcd.print(now.Hour());
   lcd.print(":");
   lcd.print(now.Minute());
+  lcd.print(":");
+  lcd.print(now.Second());
 
   if (IrReceiver.decode())
   {
