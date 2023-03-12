@@ -59,23 +59,29 @@ void loop()
   int joy_y = analogRead(JOY_Y);
   onoff = digitalRead(SW);
 
+  svetlost = joy_y / 4;
+
   if (onoff == LOW)
   {
     if (power == 1)
     {
-      FastLED.clear();
       power = 0;
     }
     else
     {
-      FastLED.show();
       power = 1;
     }
   }
 
-  svetlost = joy_y / 4;
-  FastLED.setBrightness(svetlost);
-  FastLED.show();
+  if (power == 0)
+  {
+   FastLED.setBrightness(0);
+  }
+  else
+  {
+    FastLED.setBrightness(svetlost);
+  }
+  
 
   RtcDateTime now = Rtc.GetDateTime();
 
@@ -232,4 +238,5 @@ void loop()
     }
     IrReceiver.resume();
   }
+  FastLED.show();
 }
