@@ -1,4 +1,2 @@
-./.vscode
-./.vscode/extensions
-./.vscode/extensions/username.extension-name-0.0.1
-./Arduino/libraries/
+libraries/
+.vscode/
