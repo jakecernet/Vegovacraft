@@ -11,32 +11,37 @@
 
 MFRC522 rfid(SS_PIN, RST_PIN); // Create MFRC522 instance.
 
-byte modri_tag[4] = {0xBD, 0x99, 0xFE, 0x30};
-byte dijaska[4] = {0x89, 0x8D, 0x79, 0x5E};
-byte woop[4] = {0x0E, 0x2E, 0xA3, 0x45};
+byte modri_tag[4] = {0xBD, 0x99, 0xFE, 0x30}; //defines the UID of the card
+byte dijaska[4] = {0x89, 0x8D, 0x79, 0x5E};   //defines the UID of the card
+byte woop[4] = {0x0E, 0x2E, 0xA3, 0x45};      //defines the UID of the card
 
-const int rs = 3, en = 4, d4 = 5, d5 = 6, d6 = 7, d7 = 8;
-LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+const int rs = 3, en = 4, d4 = 5, d5 = 6, d6 = 7, d7 = 8;    // LCD pinout
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);                   // LCD object
 
-void success(){
-  tone(SOUND, 400);
-  delay(200);
-  tone(SOUND, 800);
-  delay(200);
+void success(){ //function for successfull card reading
+  tone(SOUND, 400);     //plays a tone
+  delay(200);           //waits 200ms
+  tone(SOUND, 800);     //plays a tone
+  delay(200);           
   tone(SOUND, 1200);
   delay(200);
-  noTone(SOUND);
+  noTone(SOUND);        
   digitalWrite(GREEN, HIGH);
   digitalWrite(RED, LOW);
 }
 
-void fail(){
+void fail(){      //function for unsuccessfull card reading
+  lcd.clear();
+  lcd.print("Napacna kartica");
+  digitalWrite(GREEN, HIGH);
   tone(SOUND, 2000);
   delay(200);
   tone(SOUND, 5000);
   delay(100);
   noTone(SOUND);
   digitalWrite(RED, HIGH);
+  delay(1000);
+  digitalWrite(GREEN, LOW);
 }
 
 void setup()
@@ -46,11 +51,13 @@ void setup()
   rfid.PCD_Init();    // Init MFRC522
   Serial.println("RFID scanner started");
   lcd.begin(16, 2);
-  lcd.print("Jaka Cernetic");
+  lcd.print("Prisloni kartico");
 
   pinMode(2, OUTPUT);
   pinMode(A5, OUTPUT);
   pinMode(A4, OUTPUT);
+
+  digitalWrite(RED, HIGH);
 }
 
 void loop()
@@ -120,7 +127,7 @@ void loop()
       {
         fail();
         lcd.clear();
-        lcd.print("Neznana karta");
+        lcd.print("Prisloni kartico");
       }
     }
   }
