@@ -4,6 +4,8 @@
 #define color_yellow "\x1B[33m"
 #define color_reset "\x1B[0m"
 
+#define GOTOXY (x, y) "\e[" #y ";" #x "H"
+#define clear_screen "\x1b[0K"
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -13,9 +15,9 @@ void setup()
 void loop()
 {
   digitalWrite(LED_BUILTIN, HIGH);
-  Serial.print(color_red "led on"color_reset);
+  Serial.println(GOTOXY(1, 1) color_red "led on " color_reset);
   delay(1000);
   digitalWrite(LED_BUILTIN, LOW);
-  Serial.print(color_yellow "led off" color_reset);
+  Serial.println(GOTOXY(1, 1) color_yellow "led off" clear_screen color_reset);
   delay(1000);
 };
