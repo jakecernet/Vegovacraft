@@ -1,0 +1,6 @@
+{
+    "port": "COM3",
+    "board": "arduino:avr:uno",
+    "programmer": "parallel",
+    "sketch": "Arduino\\nfc\\nfc.ino"
+}
