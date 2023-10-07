@@ -5,14 +5,14 @@
 #define color_yellow "\x1B[33m"
 #define color_reset "\x1B[0m"
 
-#define GOTOXY (x, y) "\e[" #y ";" #x "H"
+#define GOTOXY(x, y) "\e[" #y ";" #x "H"
 #define clear_screen "\x1b[0K"
 #define clr_scr "\x1b[2J"
 
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  serial.begin(115200);
+  Serial.begin(115200);
   Serial.print(clr_scr);
 };
 
