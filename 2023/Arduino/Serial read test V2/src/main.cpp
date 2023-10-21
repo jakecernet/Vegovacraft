@@ -96,16 +96,19 @@ void loop()
     {
       Serial.println("\nLED utripa");
       stanje_led = HIGH;
+      // shrani stanje led v eeprom
       EEPROM.write(0, stanje_led);
     }
     else if (strcmp(vnos.niz, "OFF") == 0)
     {
       Serial.print("\nLED ne utripa");
       stanje_led = LOW;
+      // shrani stanje led v eeprom
       EEPROM.write(0, stanje_led);
     }
     else
     {
+      // izpisemo vneseno vrednost
       Serial.println("\nVnesli ste: ");
       Serial.println(vnos.niz);
     }
