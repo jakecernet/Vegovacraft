@@ -3,8 +3,8 @@ window.addEventListener('scroll', function () {
 
     var scrollToTop = document.getElementById('nav');
     if (scrollPos > 400) {
-        scrollToTop.style.display = 'none';
+        scrollToTop.style.opacity = '0';
     } else {
-        scrollToTop.style.display = 'flex';
+        scrollToTop.style.opacity = '1';
     }
 });

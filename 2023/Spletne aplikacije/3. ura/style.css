@@ -1,0 +1,124 @@
+::-webkit-scrollbar {
+    display: none;
+}
+
+* {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: linear-gradient(90deg, rgb(38, 57, 77) 0%, rgb(25, 44, 65) 50%, rgb(16, 35, 54) 100%);
+    margin: 0;
+    padding: 0;
+    font-family: 'Goldman', sans-serif;
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.profil {
+    width: 20vh;
+    border-radius: 50%;
+    box-shadow: rgb(38, 57, 77) 0px 20px 30px -10px;
+}
+
+h1 {
+    color: #B0413E;
+    font-size: 50px;
+    font-family: 'Goldman', sans-serif;
+}
+
+.puscica {
+    font-size: 100px;
+    color: #B0413E;
+    margin-top: 50vh;
+    transition: 0.5s;
+}
+
+.puscica:hover {
+    cursor: pointer;
+    scale: 1.1;
+}
+
+.puscica:active {
+    scale: 1.2;
+}
+
+.hr {
+    width: 90%;
+    height: 2px;
+    background-color: #B0413E;
+}
+
+section {
+    height: 100vh;
+    font-size: 20px;
+    font-family: 'Goldman', sans-serif;
+    color: #B0413E;
+    max-width: 1200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    flex-direction: column;
+}
+
+section ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 20px;
+    padding: 0;
+    width: 90%;
+}
+
+section ul li {
+    padding: 40px;
+    background-color: #3e46b03f;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: 0.5s;
+}
+
+section ul li:hover>.text {
+    cursor: pointer;
+    scale: 1.2;
+}
+
+section ul li:active {
+    scale: 1.2;
+}
+
+section p {
+    width: 90%;
+    text-align: center;
+    margin: 20px;
+    font-size: 20px;
+}
+
+.text {
+    font-size: 20px;
+    color: #B0413E;
+    transition: 0.5s;
+}
+
+@media screen and (max-width: 1000px) {
+    section ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+footer {
+    width: 100%;
+    height: 100px;
+    background-color: #3e46b03f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
