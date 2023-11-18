@@ -255,6 +255,27 @@ bool preveri_alarm()
   return true;
 };
 
+/// -----
+/// @brief Funkcija preverja, ali je dani niz med prepoznanimi ukazi
+/// in kateri po vrsti je
+/// @param Niz niz znakov, ki vsebuje ukaz in parametre
+/// @returns Kateri ukaz po vrsti je
+int doloci_ukaz(char niz[])
+{
+  uint8_t preverjam = 0;
+  uint8_t najden = 0;
+  // shortanje operatorjev ( 0 | 0 | 1 | 0 | 0 | 1)
+  if (
+      (preverjam++, (strcmp(vnos.niz, "ON") == 0)) ||
+      (preverjam++, (strcmp(vnos.niz, "OFF") == 0)) ||
+      (preverjam++, (strcmp(vnos.niz, "URA") == 0)) ||
+      (preverjam++, (strcmp(vnos.niz, "ALARM") == 0)) ||
+      0)
+    najden = preverjam;
+
+  return najden;
+}
+
 char buffer[20];
 
 // brali bomo s serijskega vhoda vse dokler uporabnik ne pošlje tipke <enter> ali pa preberemo 20 znakov.
@@ -263,6 +284,14 @@ void loop()
   vnos_niza(vnos);
   if (vnos.niz_vnesen)
   {
+    // pripravili in klicali funkcijo, ki bo povedala, kateri pogoj po vrsti je izpolnjen
+    // v nadaljevanju pa bomo s stavkom switch ali pa še na kak boljši način
+    // izvedli zahtevano operacijo
+    int ukaz = doloci_ukaz(vnos.niz);
+    Serial.print("Vneseni ukaz ustreza pogoju stevilka: ");
+    Serial.print(ukaz);
+    Serial.println(".");
+
     vnos.niz_vnesen = false;
     if (strcmp(vnos.niz, "ON") == 0)
     {
