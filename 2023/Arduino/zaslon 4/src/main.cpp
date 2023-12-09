@@ -2,17 +2,26 @@
 #include "RtcDS1302.h"
 #include <Arduino.h>
 #include <EEPROM.h>
+#include "IRremote.h"
 
 byte hh, mm, ss, mmm, dd; // ure, minute, sekunde, milisekunde, dnevi
+
+byte znak_bar2[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111};
+byte znak_bar3[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111};
+byte znak_bar4[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar5[8] = {0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar6[8] = {0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar7[8] = {0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
 
 struct
 {
   byte ahh, amm, ass;
   byte alarm_vkljucen = false;
   byte alarm_sprozen = false;
+  byte jakost_zaslona = 5;
   // todo implementiramo kontrolno vsoto
   byte kontrolna_vsota = 0;
-} nastavitve_alarma;
+} nastavitve;
 
 void nastavi_alarm(byte h, byte m, byte s);
 
@@ -91,9 +100,9 @@ void vnos_niza(polje_vnosa_t &v)
 #define LCD_D7 2
 
 // RTC pins
-#define SCLK A0 // CLK
+#define SCLK A2 // CLK
 #define IO A1   // DAT
-#define CE A2   // RST
+#define CE A0   // RST
 
 bool stanje_led = HIGH; // bool je vrsta spremenljivke, ki je lahko true ali false
 LiquidCrystal lcd(RS, EN, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
@@ -102,13 +111,6 @@ unsigned long cas;
 RtcDateTime rtc_dt;
 ThreeWire myWire(IO, SCLK, CE); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
-
-byte znak_bar2[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111};
-byte znak_bar3[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111};
-byte znak_bar4[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111};
-byte znak_bar5[8] = {0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
-byte znak_bar6[8] = {0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
-byte znak_bar7[8] = {0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
 
 void izpisi_uro()
 {
@@ -122,7 +124,7 @@ void izpisi_uro()
 void izpisi_alarm()
 {
   char buffer[50];
-  snprintf(buffer, sizeof buffer, "%02d:%02d:%02d", nastavitve_alarma.ahh, nastavitve_alarma.amm, nastavitve_alarma.ass);
+  snprintf(buffer, sizeof buffer, "%02d:%02d:%02d", nastavitve.ahh, nastavitve.amm, nastavitve.ass);
   Serial.println(buffer);
 }
 
@@ -136,26 +138,12 @@ void spremeni_uro(byte hh, byte mm, byte ss)
 void setup()
 {
   Serial.begin(115200);
+  IrReceiver.begin(A5, true);
   uint8_t prebrano;
-  prebrano = Rtc.GetMemory((uint8_t *)&nastavitve_alarma, sizeof nastavitve_alarma);
-  Serial.print("Prebrano ");
-  if (!(nastavitve_alarma.ahh < 24 && nastavitve_alarma.amm < 60 && nastavitve_alarma.ass < 60))
-  {
-    nastavitve_alarma.alarm_vkljucen = false;
-    nastavitve_alarma.alarm_sprozen = false;
-    nastavitve_alarma.ahh = 0;
-    nastavitve_alarma.amm = 0;
-    nastavitve_alarma.ass = 0;
-    prebrano = Rtc.SetMemory((uint8_t *)&nastavitve_alarma, sizeof nastavitve_alarma);
-    Serial.print("\nAlarm resetiran\n");
-  }
-  Serial.print(prebrano);
-  Serial.print(" znakov iz pomnilnika RTC");
+  prebrano = Rtc.GetMemory((uint8_t *)&nastavitve, sizeof nastavitve);
+  analogWrite(9, map(nastavitve.jakost_zaslona, 0, 9, 0, 255));
 
   lcd.begin(16, 2);
-  lcd.print("Hello!");
-  cas = millis();
-
   lcd.createChar(0, znak_bar2);
   lcd.createChar(1, znak_bar3);
   lcd.createChar(2, znak_bar4);
@@ -163,11 +151,33 @@ void setup()
   lcd.createChar(4, znak_bar6);
   lcd.createChar(5, znak_bar7);
 
+  printActiveIRProtocols(&Serial);
+
+  Serial.print("Jakost zaslona: ");
+  Serial.println(nastavitve.jakost_zaslona);
+
+  Serial.print("Prebrano ");
+  if (!(nastavitve.ahh < 24 && nastavitve.amm < 60 && nastavitve.ass < 60))
+  {
+    nastavitve.alarm_vkljucen = false;
+    nastavitve.alarm_sprozen = false;
+    nastavitve.ahh = 0;
+    nastavitve.amm = 0;
+    nastavitve.ass = 0;
+    prebrano = Rtc.SetMemory((uint8_t *)&nastavitve, sizeof nastavitve);
+    Serial.print("\nAlarm resetiran\n");
+  }
+  Serial.print(prebrano);
+  Serial.print(" znakov iz pomnilnika RTC");
+
   Rtc.Begin();
   izpisi_uro();
   pinMode(13, OUTPUT);
   // stanje led preberemo iz EEPROMa
   stanje_led = EEPROM.read(0);
+
+  lcd.print("Hello!");
+  cas = millis();
 }
 
 // v myDelay izvajamo vnos, ponavaljamo delay vsako milisekundo, tolikokrat, kot smo zahtevali v i
@@ -226,27 +236,26 @@ bool ali_je_pravilna_ura(char *niz, byte len, byte *hh, byte *mm, byte *ss)
 
 void nastavi_alarm(byte h, byte m, byte s)
 {
-  nastavitve_alarma.ahh = h;
-  nastavitve_alarma.amm = m;
-  nastavitve_alarma.ass = s;
-  nastavitve_alarma.alarm_vkljucen = true;
-  Serial.print(nastavitve_alarma.ahh);
-  Serial.print(":");
-  Serial.print(nastavitve_alarma.amm);
-  Serial.print(":");
-  Serial.println(nastavitve_alarma.ass);
-  nastavitve_alarma.alarm_vkljucen = true;
-  Rtc.SetMemory((uint8_t *)&nastavitve_alarma, sizeof nastavitve_alarma);
+  nastavitve.ahh = h;
+  nastavitve.amm = m;
+  nastavitve.ass = s;
+  nastavitve.alarm_vkljucen = true;
+  char buffer[9];
+  snprintf(buffer, sizeof buffer, "%02d:%02d:%02d", nastavitve.ahh, nastavitve.amm, nastavitve.ass);
+  Serial.println(buffer);
+
+  nastavitve.alarm_vkljucen = true;
+  Rtc.SetMemory((uint8_t *)&nastavitve, sizeof nastavitve);
 }
 
 void izkljuci_alarm()
 {
-  nastavitve_alarma.alarm_vkljucen = false;
+  nastavitve.alarm_vkljucen = false;
 }
 
 bool preveri_alarm()
 {
-  if (!nastavitve_alarma.alarm_vkljucen)
+  if (!nastavitve.alarm_vkljucen)
     return false;
   rtc_dt = Rtc.GetDateTime();
 
@@ -254,9 +263,9 @@ bool preveri_alarm()
             rtc_dt.Minute() * 60 +
             rtc_dt.Second();
 
-  int alarm = nastavitve_alarma.ahh * 60 * 60 +
-              nastavitve_alarma.amm * 60 +
-              nastavitve_alarma.ass;
+  int alarm = nastavitve.ahh * 60 * 60 +
+              nastavitve.amm * 60 +
+              nastavitve.ass;
 
   // Serial.print(now);
   // Serial.print(" : ");
@@ -283,7 +292,11 @@ int doloci_ukaz(char niz[])
       (preverjam++, (strcmp(vnos.niz, "ON") == 0)) ||
       (preverjam++, (strcmp(vnos.niz, "OFF") == 0)) ||
       (preverjam++, (strcmp(vnos.niz, "URA") == 0)) ||
+      (preverjam++, (strncmp(vnos.niz, "URA ", 4) == 0)) ||
       (preverjam++, (strcmp(vnos.niz, "ALARM") == 0)) ||
+      (preverjam++, (strncmp(vnos.niz, "ALARM ", 6) == 0)) ||
+      (preverjam++, (strcmp(vnos.niz, "JAKOST") == 0)) ||
+      (preverjam++, (strncmp(vnos.niz, "JAKOST ", 7) == 0)) ||
       0)
     najden = preverjam;
 
@@ -291,10 +304,57 @@ int doloci_ukaz(char niz[])
 }
 
 char buffer[20];
+byte graf_pos = 0;
+unsigned char graf_znaki[9] = {' ', '_', 0b00000000, 1, 2, 3, 4, 5, 0b11111111};
+byte graf[16];
+
+bool olddecode = false;
+int16_t lastCommand;
 
 // brali bomo s serijskega vhoda vse dokler uporabnik ne pošlje tipke <enter> ali pa preberemo 20 znakov.
 void loop()
 {
+  if (IrReceiver.decode() && !olddecode)
+  {
+    Serial.print("Prebrano: ");
+    Serial.println(IrReceiver.decodedIRData.command, HEX);
+    lastCommand = IrReceiver.decodedIRData.command;
+
+    lcd.setCursor(0, 0);
+    lcd.print(IrReceiver.decodedIRData.command, HEX);
+
+    olddecode = true;
+
+    IrReceiver.resume();
+  }
+  else
+  {
+    olddecode = false;
+  }
+
+  if (olddecode)
+  {
+    switch (lastCommand)
+    {
+    case 0x07:
+      if (nastavitve.jakost_zaslona > 0)
+      {
+        nastavitve.jakost_zaslona--;
+        analogWrite(9, map(nastavitve.jakost_zaslona, 0, 9, 0, 255));
+      }
+      break;
+    case 0x15:
+      if (nastavitve.jakost_zaslona < 9)
+      {
+        nastavitve.jakost_zaslona++;
+        analogWrite(9, map(nastavitve.jakost_zaslona, 0, 9, 0, 255));
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
   vnos_niza(vnos);
   if (vnos.niz_vnesen)
   {
@@ -307,88 +367,99 @@ void loop()
     Serial.println(".");
 
     vnos.niz_vnesen = false;
-    if (strcmp(vnos.niz, "ON") == 0)
+
+    switch (ukaz)
     {
+    case 1: // LED ON
       Serial.println("\nLED zdaj utripa");
       stanje_led = HIGH;
       // stanje si zapomnimo v EEPROM
       EEPROM.write(0, stanje_led);
-    }
-    else if (strcmp(vnos.niz, "OFF") == 0)
-    {
+      break;
+    case 2: // LED OFF
       Serial.println("\nLED zdaj ne utripa več");
       stanje_led = LOW;
       // stanje si zapomnimo v EEPROM
       EEPROM.write(0, stanje_led);
-    }
-    // tu preverjamo situacijo pri ukazu URA
-    else if (strncmp(vnos.niz, "URA", 3) == 0)
-    {
-      if (strlen(vnos.niz) == 3)
-      {
-        Serial.print("\n");
-        izpisi_uro();
-      }
-      else
-      { // URA HH:MM:SS
-        // če dolžina niza ni 12 in
-        if (strlen(vnos.niz) == 12)
-        { // URA 10:00:00
-          // if (ali_je_pravilna_ura(&vnos.niz[4]))
-          if (ali_je_pravilna_ura(vnos.niz + 4, 8, &hh, &mm, &ss))
-          {
-            // Serial.println("Ura je pravilno vnešena");
-            spremeni_uro(hh, mm, ss);
-          }
-          else
-          {
-            Serial.println("Ura ni pravilno vnešena");
-          }
+      break;
+    case 3:
+      Serial.print("\n");
+      izpisi_uro();
+      break;
+    case 4:
+      if (strlen(vnos.niz) == 12)
+      { // URA 10:00:00
+        // if (ali_je_pravilna_ura(&vnos.niz[4]))
+        if (ali_je_pravilna_ura(vnos.niz + 4, 8, &hh, &mm, &ss))
+        {
+          // Serial.println("Ura je pravilno vnešena");
+          spremeni_uro(hh, mm, ss);
         }
         else
         {
-          Serial.println("\nParameter ukaza ni pravi. URA hh:mm:ss z vodilnimi ničlami.");
+          Serial.println("Ura ni pravilno vnešena");
         }
       }
-    }
-    else if (strncmp(vnos.niz, "ALARM", 3) == 0)
-    {
-      if (strlen(vnos.niz) == 5)
-      {
-        Serial.print("\n");
-        izpisi_alarm();
-      }
       else
-      { // URA HH:MM:SS
-        // če dolžina niza ni 12 in
-        if (strlen(vnos.niz) == 14)
-        { // ALARM 10:00:00
-          // if (ali_je_pravilna_ura(&vnos.niz[6]))
-          if (ali_je_pravilna_ura(vnos.niz + 6, 8, // +6 zaradi dolžine
-                                  &nastavitve_alarma.ahh,
-                                  &nastavitve_alarma.amm,
-                                  &nastavitve_alarma.ass))
-          {
-            nastavi_alarm(nastavitve_alarma.ahh, nastavitve_alarma.amm, nastavitve_alarma.ass);
-          }
-          else
-          {
-            Serial.println("Alarm ni pravilno vnešen");
-          }
+      {
+        Serial.println("\nParameter ukaza ni pravi. URA hh:mm:ss z vodilnimi ničlami.");
+      }
+      break;
+    case 5:
+      Serial.print("\n Alarm je nastavljen ob ");
+      izpisi_alarm();
+      break;
+    case 6:
+      // če dolžina niza ni 12 in
+      if (strlen(vnos.niz) == 14)
+      { // ALARM 10:00:00
+        // if (ali_je_pravilna_ura(&vnos.niz[6]))
+        if (ali_je_pravilna_ura(vnos.niz + 6, 8, // +6 zaradi dolžine
+                                &nastavitve.ahh,
+                                &nastavitve.amm,
+                                &nastavitve.ass))
+        {
+          nastavi_alarm(nastavitve.ahh, nastavitve.amm, nastavitve.ass);
         }
         else
         {
-          Serial.println("\nParameter ukaza ni pravi. ALARM hh:mm:ss z vodilnimi ničlami.");
+          Serial.println("Alarm ni pravilno vnešen");
         }
       }
-    }
-    else
-    {
-      // drugače pa samo izpišemo, kaj je uporabnik vnesel
+      else
+      {
+        Serial.println("\nParameter ukaza ni pravi. ALARM hh:mm:ss z vodilnimi ničlami.");
+      }
+      break;
+    case 7:
+      Serial.print("\n Jakost zaslona: ");
+      Serial.print(nastavitve.jakost_zaslona);
+      Serial.print(".");
+      break;
+    case 8: // JAKOST 6
+      if (strlen(vnos.niz) != 8)
+      {
+        Serial.print("Napačno vnesen ukaz. Primer: JAKOST 5");
+        break;
+      }
+      if ((vnos.niz[7] < '0') || (vnos.niz[7] > '9'))
+      {
+        Serial.println("Parameter ni dovoljen znak. Mora biti številka.");
+        break;
+      }
+      nastavitve.jakost_zaslona = vnos.niz[7] - 48; // zdaj bo vrednost od 0 do 9
+      // potrebujemo vrednost od 0 do 255
+
+      Rtc.SetMemory((uint8_t *)&nastavitve, sizeof nastavitve);
+      analogWrite(9, map(nastavitve.jakost_zaslona, 0, 9, 0, 255));
+      break;
+    default:
+      // drugače pa samo izpišemo, kaj je {uporabnik vnesel
       Serial.print("\nVnesli ste niz: ");
       Serial.println(vnos.niz);
       Serial.print("\nDolzina je bila ");
       Serial.println(strlen(vnos.niz));
+      break;
     }
   }
 
@@ -409,13 +480,14 @@ void loop()
   snprintf(buffer, 15, "[%c] %02d:%02d:%02d", preveri_alarm() ? 'A' : ' ', rtc_dt.Hour(), rtc_dt.Minute(), rtc_dt.Second());
   lcd.print(buffer);
 
-  lcd.setCursor(0, 1); // postavimo v spodnjo vrstico
-  lcd.print(' ');
-
-  unsigned char graf[9]{' ', '_', 0b00000, 1, 2, 3, 4, 5, 0b11111};
-
-  byte osvetlitev = map(analogRead(A3), 50, 750, 0, 8);
-  lcd.print((char)graf[osvetlitev]);
-
-  Serial.println(analogRead(A3));
+  lcd.setCursor(0, 1);
+  byte osvetlitev = map(analogRead(A3), 50, 725, 1, 8);
+  // lcd.print((char)graf_znaki[osvetlitev]);
+  graf_pos = (graf_pos + 1) % 16;
+  graf[graf_pos] = osvetlitev;
+  for (int i = 0; i < 16; i++)
+  {
+    lcd.print((char)graf_znaki[graf[(i + graf_pos) % 16]]);
+  }
+  delay(100);
 }
