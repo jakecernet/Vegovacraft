@@ -103,6 +103,13 @@ RtcDateTime rtc_dt;
 ThreeWire myWire(IO, SCLK, CE); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
 
+byte znak_bar2[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111};
+byte znak_bar3[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111};
+byte znak_bar4[8] = {0b00000, 0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar5[8] = {0b00000, 0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar6[8] = {0b00000, 0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
+byte znak_bar7[8] = {0b00000, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111, 0b11111};
+
 void izpisi_uro()
 {
   rtc_dt = Rtc.GetDateTime();
@@ -145,15 +152,22 @@ void setup()
   Serial.print(prebrano);
   Serial.print(" znakov iz pomnilnika RTC");
 
+  lcd.begin(16, 2);
+  lcd.print("Hello!");
+  cas = millis();
+
+  lcd.createChar(0, znak_bar2);
+  lcd.createChar(1, znak_bar3);
+  lcd.createChar(2, znak_bar4);
+  lcd.createChar(3, znak_bar5);
+  lcd.createChar(4, znak_bar6);
+  lcd.createChar(5, znak_bar7);
+
   Rtc.Begin();
   izpisi_uro();
   pinMode(13, OUTPUT);
   // stanje led preberemo iz EEPROMa
   stanje_led = EEPROM.read(0);
-
-  lcd.begin(16, 2);
-  lcd.print("Hello!");
-  cas = millis();
 }
 
 // v myDelay izvajamo vnos, ponavaljamo delay vsako milisekundo, tolikokrat, kot smo zahtevali v i
@@ -389,19 +403,19 @@ void loop()
   cas /= 24;     // če zdaj cas delimo s 24, dobimo dneve
   dd = cas;      // mesecev in let se nam še ne da
 
-  // strncpy(buffer, "Vegovacraft",12);
-  lcd.setCursor(0, 0); // postavimo v zgornjo vrstico
-  snprintf(buffer, 15, "[%d] %02d:%02d:%02d.%1d", dd, hh, mm, ss, mmm / 100);
-  lcd.print(buffer);
-
-  lcd.setCursor(0, 1); // postavimo v spodnjo vrstico
+  lcd.setCursor(4, 0); // postavimo v spodnjo vrstico
   rtc_dt = Rtc.GetDateTime();
-
-  // (bool) ? true : false
-  // (2>1) ? 2 : 0     ....-> izraz vrne 2
-  // (2<1) ? 2 : 0     ....-> izraz vrne 0
-  // (2<1) ? 'A': 'B'     ....-> izraz vrne 'B'
 
   snprintf(buffer, 15, "[%c] %02d:%02d:%02d", preveri_alarm() ? 'A' : ' ', rtc_dt.Hour(), rtc_dt.Minute(), rtc_dt.Second());
   lcd.print(buffer);
+
+  lcd.setCursor(0, 1); // postavimo v spodnjo vrstico
+  lcd.print(' ');
+
+  unsigned char graf[9]{' ', '_', 0b00000, 1, 2, 3, 4, 5, 0b11111};
+
+  byte osvetlitev = map(analogRead(A3), 50, 750, 0, 8);
+  lcd.print((char)graf[osvetlitev]);
+
+  Serial.println(analogRead(A3));
 }
