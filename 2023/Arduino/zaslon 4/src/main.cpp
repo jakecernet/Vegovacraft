@@ -3,6 +3,11 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include "IRremote.h"
+#include "FastLED.h"
+
+#define NUM_LEDS 9
+CRGB leds[NUM_LEDS];
+#define LED_PIN A4
 
 byte hh, mm, ss, mmm, dd; // ure, minute, sekunde, milisekunde, dnevi
 
@@ -178,9 +183,12 @@ void setup()
 
   lcd.print("Hello!");
   cas = millis();
+
+  FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, sizeof leds / sizeof leds[0]);
+  memset(leds, 0, sizeof leds);
+  FastLED.show();
 }
 
-// v myDelay izvajamo vnos, ponavaljamo delay vsako milisekundo, tolikokrat, kot smo zahtevali v i
 void myDelay(int i)
 {
   for (int j; j < i; j++)
@@ -311,9 +319,50 @@ byte graf[16];
 bool olddecode = false;
 int16_t lastCommand;
 
+byte smer = 1;
+byte pozicija = 0;
+
 // brali bomo s serijskega vhoda vse dokler uporabnik ne pošlje tipke <enter> ali pa preberemo 20 znakov.
 void loop()
 {
+  {
+    leds[pozicija] = CRGB::Red;
+
+    if (pozicija > 0)
+    {
+      leds[pozicija - 1] = 0x200000;
+    }
+
+    if (pozicija > 1)
+    {
+      leds[pozicija - 2] = 0x200000;
+    }
+
+    if (pozicija < NUM_LEDS - 1)
+    {
+      leds[pozicija + 1] = 0x080000;
+    }
+
+    if (pozicija < NUM_LEDS - 2)
+    {
+      leds[pozicija + 2] = 0x080000;
+    }
+
+    FastLED.show();
+    leds[pozicija] = CRGB::Black;
+    leds[pozicija - 1] = CRGB::Black;
+    leds[pozicija + 1] = CRGB::Black;
+    leds[pozicija - 2] = CRGB::Black;
+    leds[pozicija + 2] = CRGB::Black;
+    pozicija = pozicija + smer;
+
+    //cylon eye - Če je pozicija 0 ali 9, spremeni smer
+    if (pozicija == 0 || pozicija == NUM_LEDS - 1)
+    {
+      smer = -smer;
+    }
+  }
+
   if (IrReceiver.decode() && !olddecode)
   {
     Serial.print("Prebrano: ");
@@ -358,9 +407,6 @@ void loop()
   vnos_niza(vnos);
   if (vnos.niz_vnesen)
   {
-    // pripravili in klicali funkcijo, ki bo povedala, kateri pogoj po vrsti je izpolnjen
-    // v nadaljevanju pa bomo s stavkom switch ali pa še na kak boljši način
-    // izvedli zahtevano operacijo
     int ukaz = doloci_ukaz(vnos.niz);
     Serial.print("Vneseni ukaz ustreza pogoju stevilka: ");
     Serial.print(ukaz);
@@ -489,5 +535,5 @@ void loop()
   {
     lcd.print((char)graf_znaki[graf[(i + graf_pos) % 16]]);
   }
-  delay(100);
+  delay(80);
 }
