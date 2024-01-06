@@ -10,6 +10,9 @@ class myTimer {
 
 public:
     bool timerCaka; // ali čakamo na primeren trenutek za izvedbo
+    /*
+     * Kazalec na funkcijo, ki se bo izvedla ob preteku časovnega intervala.
+     */
     callbackFunction cb;
 
     myTimer();
