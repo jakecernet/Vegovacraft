@@ -27,7 +27,6 @@ void myTimer::setTimer(unsigned long _interval, int _count) {
 /*
  * Začne čakati na pretečen časovni interval.
  */
-
 void myTimer::startTimer() {
     start = millis();
     nextCall = start + interval;
