@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <HTTPClient.h>
 #include <WiFi.h>
 #include <esp_sntp.h>
 
@@ -37,13 +38,21 @@ void setup() {
     esp_sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
     esp_sntp_set_time_sync_notification_cb(obSinhronizaciji);
     esp_sntp_init();
+    delay(1000);
 }
 
+bool enkrat = true;
+
+extern char cert[] asm("_binary_certifikati_CA_pem_start");
+HTTPClient http;
+
 void loop() {
-    time_t cas;
-    cas = 0;
-    time(&cas);
-    Serial.printf("Ura je: %s", ctime(&cas));
+    if (enkrat & WiFi.isConnected()) {
+        http.begin("https://craft.vegova.si", cert);
+        int status = http.GET();
+        http.end();
+        enkrat = false;
+    }
 
     delay(1000);
 }
