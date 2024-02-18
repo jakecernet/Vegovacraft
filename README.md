@@ -1,3 +1,3 @@
 # Vegovacraft
 
-Things we made in school.
+### Code from the Vegovacraft courses.
