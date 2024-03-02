@@ -1,58 +1,56 @@
 #include <Arduino.h>
-#include <HTTPClient.h>
 #include <WiFi.h>
-#include <esp_sntp.h>
+#include <mqtt_client.h>
 
-void izpisiCas();
+esp_mqtt_client_config_t konfiguracja;
+esp_mqtt_client_handle_t klient;
 
-void obSinhronizaciji(struct timeval *tv) {
+void kajDogaja(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
+    esp_mqtt_event_handle_t dogodek = (esp_mqtt_event_handle_t)event_data;
+    esp_mqtt_client_handle_t klient = dogodek->client;
+    esp_mqtt_event_id_t idDogodka = (esp_mqtt_event_id_t)event_id;
 
-    Serial.println("Sinhronizacija uspela");
-    Serial.printf("");
-    izpisiCas();
-}
-
-void izpisiCas() {
-    tm *ura;
-    time_t cas = time(nullptr);
-    ura = localtime(&cas);
-
-    Serial.printf("Ura je: %02d. %02d. %02d  %02d:%02d:%02d\n", ura->tm_mday, ura->tm_mon + 1, ura->tm_year + 1900, ura->tm_hour, ura->tm_min, ura->tm_sec);
+    switch (idDogodka) {
+    case MQTT_EVENT_CONNECTED:
+        log_i("uspešno povezan");
+        break;
+    case MQTT_EVENT_DATA:
+        Serial.printf("Tema: %.*s, Sporočilo: %.*s\n", dogodek->topic_len, dogodek->topic, dogodek->data_len, dogodek->data);
+        break;
+    default:
+        Serial.println("something happened");
+        break;
+    }
 }
 
 void setup() {
-    Serial.begin(921600);
     WiFi.begin(WIFI_DEFAULT_SSID, WIFI_DEFAULT_PASSWORD);
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        Serial.println("Connecting to WiFi...");
-    }
-    Serial.println("Connected to WiFi");
-    Serial.printf("SSID: %s, password: %s", WIFI_DEFAULT_SSID, WIFI_DEFAULT_PASSWORD);
+    Serial.begin(921600);
+    delay(5000);
 
-    setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
-    tzset();
+    // konfiguracja klienta MQTT
+    konfiguracja.client_id = "crnijevESP32";
+    konfiguracja.host = "nether.mojvegovc.si";
+    konfiguracja.port = 1883;
+    konfiguracja.username = "VegovaLjubljana";
+    konfiguracja.password = "RSOv";
+    konfiguracja.lwt_msg = "crnijevESP32 je umrčkal";
+    konfiguracja.lwt_topic = "banana";
+    konfiguracja.lwt_retain = true;
+    konfiguracja.lwt_msg_len = strlen(konfiguracja.lwt_msg);
 
-    esp_sntp_setservername(0, "nether.mojvegovc.si");
-    log_i("privzeti sinhronizacijski interval: %d", esp_sntp_get_sync_interval());
-    esp_sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
-    esp_sntp_set_time_sync_notification_cb(obSinhronizaciji);
-    esp_sntp_init();
-    delay(1000);
+    // povezava na MQTT strežnik
+    klient = esp_mqtt_client_init(&konfiguracja);
+    bool clientStarted = esp_mqtt_client_start(klient);
+
+    // error handler
+    esp_mqtt_client_register_event(klient, MQTT_EVENT_ANY, kajDogaja, NULL);
+
+    char message[] = "rnijevESP32 je živ";
+    esp_mqtt_client_publish(klient, "banana", message, strlen(message), 0, 1);
+
+    esp_mqtt_client_subscribe(klient, "banana", 0);
 }
 
-bool enkrat = true;
-
-extern char cert[] asm("_binary_certifikati_CA_pem_start");
-HTTPClient http;
-
 void loop() {
-    if (enkrat & WiFi.isConnected()) {
-        http.begin("https://craft.vegova.si", cert);
-        int status = http.GET();
-        http.end();
-        enkrat = false;
-    }
-
-    delay(1000);
 }
