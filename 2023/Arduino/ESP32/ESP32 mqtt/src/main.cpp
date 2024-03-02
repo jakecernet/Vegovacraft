@@ -38,6 +38,7 @@ void setup() {
     konfiguracja.lwt_topic = "banana";
     konfiguracja.lwt_retain = true;
     konfiguracja.lwt_msg_len = strlen(konfiguracja.lwt_msg);
+    konfiguracja.keepalive = 120;
 
     // povezava na MQTT strežnik
     klient = esp_mqtt_client_init(&konfiguracja);
@@ -46,8 +47,8 @@ void setup() {
     // error handler
     esp_mqtt_client_register_event(klient, MQTT_EVENT_ANY, kajDogaja, NULL);
 
-    char message[] = "rnijevESP32 je živ";
-    esp_mqtt_client_publish(klient, "banana", message, strlen(message), 0, 1);
+    char message[] = "crnijevESP32 je živ";
+    esp_mqtt_client_publish(klient, "banana", message, 0, 0, 1);
 
     esp_mqtt_client_subscribe(klient, "banana", 0);
 }
