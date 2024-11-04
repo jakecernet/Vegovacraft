@@ -1,39 +1,23 @@
 import { useEffect, useState } from "react";
 import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
+import dusko from "/dusko.jpg";
 import "./App.css";
+import Modul from "./modul/modul";
 
 function App() {
 	const [count, setCount] = useState(0);
-	const [color, setColor] = useState("aquamarine");
-
-	useEffect(() => {
-		changeBg();
-	}, [color]);
-
-	const changeBg = () => {
-		document.body.style.backgroundColor = color;
-
-		setTimeout(() => {
-			setColor("blue");
-			document.body.style.backgroundColor = color;
-		}, 1000);
-
-		setTimeout(() => {
-			setColor("green");
-			document.body.style.backgroundColor = color;
-		}, 2000);
-	};
 
 	return (
 		<>
 			<div>
+        <Modul />
 				<a href="https://vite.dev" target="_blank">
 					<img src={viteLogo} className="logo" alt="Vite logo" />
 				</a>
 				<a href="https://react.dev" target="_blank">
 					<img
-						src={reactLogo}
+						src={dusko}
 						className="logo react"
 						alt="React logo"
 					/>
