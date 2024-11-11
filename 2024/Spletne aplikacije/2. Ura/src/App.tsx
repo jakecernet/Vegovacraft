@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
 	BrowserRouter as Router,
 	Route,
@@ -11,6 +10,13 @@ import Contact from "./components/contact";
 import "./App.css";
 
 function App() {
+	const handleClick = () => {
+		alert("Hello");
+		document.body.style.backgroundColor = "red";
+		document.body.style.color = "white";
+    console.log("Hello");
+	};
+
 	return (
 		<div>
 			<Router>
@@ -25,6 +31,15 @@ function App() {
 						<Route path="/about" element={<About />} />
 						<Route path="/contact" element={<Contact />} />
 					</Routes>
+				</div>
+				<div className="button">
+					<button onClick={() => alert("Hello")}>Click me</button>
+					<button
+						onClick={() => {
+							handleClick();
+						}}>
+						Click me
+					</button>
 				</div>
 			</Router>
 		</div>
