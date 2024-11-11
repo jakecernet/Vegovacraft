@@ -5,7 +5,7 @@ import {
 	Routes,
 } from "react-router-dom";
 import Home from "./components/home";
-import About from "./components/about";
+import About from "./components/about.tsx";
 import Contact from "./components/contact";
 import "./App.css";
 
