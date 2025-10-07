@@ -14,7 +14,7 @@ function App() {
 		alert("Hello");
 		document.body.style.backgroundColor = "red";
 		document.body.style.color = "white";
-    console.log("Hello");
+		console.log("Hello");
 	};
 
 	return (
